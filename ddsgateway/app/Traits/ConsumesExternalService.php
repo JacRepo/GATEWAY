@@ -1,5 +1,6 @@
 <?php
-      namespace App\Traits;
+
+namespace App\Traits;
 // include the Guzzle Component Library
 
 use GuzzleHttp\Client;
