@@ -13,18 +13,22 @@ trait ConsumesExternalService
     */
     // note form params and headers are optional
     
-    public function performRequest($method, $requestUrl,$form_params =[],$headers =[])
+    public function performRequest($method, $requestUrl, $form_params = [], $headers = [])
     {
-        // create a new client request
         $client = new Client([
             'base_uri' => $this->baseUri,
         ]);
-        
-        // perform the request (method, url, form parameters, headers)
-         $response = $client->request($method,$requestUrl,['form_params' => $form_params, 'headers' => $headers]);
 
-        // return the response body contents
-        return $response->getBody()->getContents();    
-         
+        if (isset($this->secret)) {
+            $headers['Authorization'] = $this->secret;
+        }
+
+        $response = $client->request($method, $requestUrl, [
+            'form_params' => $form_params,
+            'headers' => $headers,
+            'http_errors' => false // 🔥 THIS LINE FIXES EVERYTHING
+        ]);
+
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

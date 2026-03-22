@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Traits\ApiResponser;
 use App\Services\User1Service;
+use App\Services\User2Service;
 
 class User1Controller extends Controller
 {
@@ -18,14 +19,16 @@ class User1Controller extends Controller
      * @var User1Service
      */
     public $user1Service;
+    public $user2Service;
 
     /**
      * Create a new controller instance
      * @return void
      */
-    public function __construct(User1Service $user1Service)
+    public function __construct(User1Service $user1Service, User2Service $user2Service)
     {
         $this->user1Service = $user1Service;
+        $this->user2Service = $user2Service;
     }
 
     /**
@@ -38,9 +41,34 @@ class User1Controller extends Controller
     }
 
     //Add
-    public function add(Request $request )
+    public function add(Request $request)
     {
-        return $this->successResponse($this->user1Service->createUser1($request->all(), Response::HTTP_CREATED));
+        if ($request->jobid <= 5)
+        {
+            $job = $this->user1Service->obtainUserJob($request->jobid);
+
+            if (!$job) {
+                return $this->errorResponse('Job not found in Site 1', 404);
+            }
+
+            return $this->successResponse(
+                $this->user1Service->createUser1($request->all()),
+                Response::HTTP_CREATED
+            );
+        } 
+        else 
+        {
+            $job = $this->user2Service->obtainUserJob($request->jobid);
+
+            if (!$job) {
+                return $this->errorResponse('Job not found in Site 2', 404);
+            }
+
+            return $this->successResponse(
+                $this->user2Service->createUser2($request->all()),
+                Response::HTTP_CREATED
+            );
+        }
     }
     
     //Show
@@ -52,7 +80,30 @@ class User1Controller extends Controller
     //Update
       public function update(Request $request,$id)
     {
-        return $this->successResponse($this->user1Service->editUser1($request->all(), $id));
+        if ($request->jobid <= 5)
+        {
+            $job = $this->user1Service->obtainUserJob($request->jobid);
+
+            if (!$job) {
+                return $this->errorResponse('Job not found in Site 1', 404);
+            }
+
+            return $this->successResponse(
+                $this->user1Service->editUser1($request->all(), $id)
+            );
+        } 
+        else 
+        {
+            $job = $this->user2Service->obtainUserJob($request->jobid);
+
+            if (!$job) {
+                return $this->errorResponse('Job not found in Site 2', 404);
+            }
+
+            return $this->successResponse(
+                $this->user2Service->editUser2($request->all(), $id)
+            );
+        }
     }
 
     //Delete

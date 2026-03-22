@@ -12,19 +12,29 @@ class User1Service
     */
     public $baseUri;
     
+    /**
+    * The secret to consume the User1 Service
+    * @var string
+    */
+    public $secret;
+
     public function __construct()
     {
         $this->baseUri = config('services.users1.base_uri');
+        $this->secret = config('services.users1.secret');
     }
 
+    //get userjob
+    public function obtainUserJob($jobid)
+    {
+        return $this->performRequest('GET', "/userjob/{$jobid}");
+    }
+
+    //Get Users
     public function obtainUsers1()
     {
         return $this->performRequest('GET','/users1');
     }
-     /**
-     * Create one user using the User1 service
-     * @return string
-     */
     
     //For Add
     public function createUser1($data)
