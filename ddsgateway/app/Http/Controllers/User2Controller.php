@@ -43,74 +43,113 @@ class User2Controller extends Controller
     //Add
     public function add(Request $request )
     {
-        if ($request->jobid <= 5)
+        //Validate input
+        $rules = [
+            'empName' => 'required|max:20',
+            'password' => 'required|max:20',
+            'gender'   => 'required|in:Male,Female',
+            'jobid'    => 'required|numeric|min:1|not_in:0'
+        ];
+
+        $this->validate($request, $rules);
+
+        $data = $request->all();
+
+        //If jobid belongs to Site 1 -> forward
+        if ($data['jobid'] <= 5)
         {
-            // Redirect to Site 1
-            $job = $this->user1Service->obtainUserJob($request->jobid);
+            $job = $this->user1Service->obtainUserJob($data['jobid']);
 
             if (!$job) {
                 return $this->errorResponse('Job not found in Site 1', 404);
             }
 
-            return $this->successResponse(
-                $this->user1Service->createUser1($request->all()),
-                Response::HTTP_CREATED
-            );
-        } 
-        else // 6–10
-        {
-            // Handle locally in Site 2
-            $job = $this->user2Service->obtainUserJob($request->jobid);
-
-            if (!$job) {
-                return $this->errorResponse('Job not found in Site 2', 404);
-            }
+            //Transform Site 2 -> Site 1 format
+            $site1Data = [
+                'username' => $data['empName'],
+                'password' => $data['password'],
+                'gender'   => $data['gender'],
+                'jobid'    => $data['jobid'],
+            ];
 
             return $this->successResponse(
-                $this->user2Service->createUser2($request->all()),
+                $this->user1Service->createUser1($site1Data),
                 Response::HTTP_CREATED
             );
         }
+
+        //Handle locally in Site 2
+        $job = $this->user2Service->obtainUserJob($data['jobid']);
+
+        if (!$job) {
+            return $this->errorResponse('Job not found in Site 2', 404);
+        }
+
+        return $this->successResponse(
+            $this->user2Service->createUser2($data),
+            Response::HTTP_CREATED
+        );
     }
     
     //Show
-     public function show($id)
+     public function show($empID)
     {
-        return $this->successResponse($this->user2Service->obtainUser2($id));
+        return $this->successResponse($this->user2Service->obtainUser2($empID));
     }
 
     //Update
-      public function update(Request $request,$id)
+    public function update(Request $request,$empID)
     {
-        if ($request->jobid <= 5)
+        //Validate input (Site2)
+        $rules = [
+            'empName' => 'required|max:20',
+            'password' => 'required|max:20',
+            'gender'   => 'required|in:Male,Female',
+            'jobid'    => 'required|numeric|min:1|not_in:0'
+        ];
+
+        $this->validate($request, $rules);
+
+        $data = $request->all();
+
+        //Route to Site 1
+        if ($data['jobid'] <= 5)
         {
-            $job = $this->user1Service->obtainUserJob($request->jobid);
+            $job = $this->user1Service->obtainUserJob($data['jobid']);
 
             if (!$job) {
                 return $this->errorResponse('Job not found in Site 1', 404);
             }
 
-            return $this->successResponse(
-                $this->user1Service->editUser1($request->all(), $id)
-            );
-        } 
-        else 
-        {
-            $job = $this->user2Service->obtainUserJob($request->jobid);
+            //Transform site2 to site1
+            $site1Data = [
+                'username' => $data['empName'],
+                'password' => $data['password'],
+                'gender'   => $data['gender'],
+                'jobid'    => $data['jobid'],
+            ];
 
-            if (!$job) {
-                return $this->errorResponse('Job not found in Site 2', 404);
-            }
+            $updated = $this->user1Service->editUser1($site1Data, $empID);
 
-            return $this->successResponse(
-                $this->user2Service->editUser2($request->all(), $id)
-            );
+            return $this->successResponse($updated);
         }
+
+        //Handle local
+        $job = $this->user2Service->obtainUserJob($data['jobid']);
+
+        if (!$job) {
+            return $this->errorResponse('Job not found in Site 2', 404);
+        }
+
+        // No transformation needed for local update
+        $updated = $this->user2Service->editUser2($data, $empID);
+
+        return $this->successResponse($updated);
     }
 
     //Delete
-    public function delete($id)
+    public function delete($empID)
     {
-        return $this->successResponse($this->user2Service->deleteUser2($id));
+        return $this->successResponse($this->user2Service->deleteUser2($empID));
     }
 }

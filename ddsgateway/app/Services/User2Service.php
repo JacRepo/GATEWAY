@@ -21,36 +21,36 @@ class User2Service
     //Get userjob
     public function obtainUserJob($jobid)
     {
-        return $this->performRequest('GET', "/userjob/{$jobid}");
+        return $this->performRequest('GET', "/jobroles/{$jobid}");
     }
 
     //For get (all)
     public function obtainUsers2()
     {
-        return $this->performRequest('GET','/users2');
+        return $this->performRequest('GET','/employees');
     }
     
     //For Add
     public function createUser2($data)
     {
-        return $this->performRequest('POST', '/users2', $data);
+        return $this->performRequest('POST', '/employees', $data);
     }
 
     //For get by ID
-    public function obtainUser2($id)
+    public function obtainUser2($empID)
     {
-        return $this->performRequest('GET', "/users2/{$id}");
+        return $this->performRequest('GET', "/employees/{$empID}");
     }
 
     //For Update
-    public function editUser2($data, $id)
+    public function editUser2($data, $empID)
     {
-        return $this->performRequest('PUT', "/users2/{$id}", $data);
+        return $this->performRequest('PUT', "/employees/{$empID}", $data);
     }
 
     //For Delete
-    public function  deleteUser2($id)
+    public function  deleteUser2($empID)
     {
-        return $this->performRequest('DELETE', "/users2/{$id}");
+        return $this->performRequest('DELETE', "/employees/{$empID}");
     }
 }

@@ -33,30 +33,30 @@ class User1Service
     //Get Users
     public function obtainUsers1()
     {
-        return $this->performRequest('GET','/users1');
+        return $this->performRequest('GET','/users');
     }
     
     //For Add
     public function createUser1($data)
     {
-        return $this->performRequest('POST', '/users1', $data);
+        return $this->performRequest('POST', '/users', $data);
     }
 
     //For get
     public function obtainUser1($id)
     {
-        return $this->performRequest('GET', "/users1/{$id}");
+        return $this->performRequest('GET', "/users/{$id}");
     }
 
     //For Update
     public function editUser1($data, $id)
     {
-        return $this->performRequest('PUT', "/users1/{$id}", $data);
+        return $this->performRequest('PUT', "/users/{$id}", $data);
     }
 
     //For Delete
     public function  deleteUser1($id)
     {
-        return $this->performRequest('DELETE', "/users1/{$id}");
+        return $this->performRequest('DELETE', "/users/{$id}");
     }
 }
